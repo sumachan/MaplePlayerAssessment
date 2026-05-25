@@ -1,0 +1,1486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>U10 Player Assessment Live App</title>
+  <style>
+:root {
+  --bg: #f7f5ef;
+  --panel: #ffffff;
+  --ink: #1f2933;
+  --muted: #667085;
+  --line: #e7e2d7;
+  --brand: #204b3d;
+  --brand-2: #2f6b56;
+  --accent: #c98330;
+  --accent-soft: #fff2df;
+  --green: #227950;
+  --green-soft: #def7e8;
+  --yellow: #9a6a00;
+  --yellow-soft: #fff4cf;
+  --red: #b42318;
+  --red-soft: #ffe4e0;
+  --blue: #1e4e8c;
+  --blue-soft: #e4efff;
+  --shadow: 0 16px 40px rgba(31, 41, 51, 0.08);
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #fff8ea, transparent 38%), var(--bg);
+  color: var(--ink);
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+button:hover { transform: translateY(-1px); }
+button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.primary {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(32, 75, 61, 0.22);
+}
+
+.secondary {
+  background: var(--accent-soft);
+  color: #69410c;
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--brand);
+  border: 1px solid rgba(32, 75, 61, 0.18);
+}
+
+.danger {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  padding: 34px min(5vw, 64px) 20px;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin: 0 0 6px;
+}
+
+h1 {
+  margin: 0;
+  color: var(--brand);
+  font-size: clamp(28px, 4vw, 46px);
+  line-height: 1.02;
+}
+
+h2, h3 { color: var(--brand); }
+
+.subtitle {
+  margin: 10px 0 0;
+  color: var(--muted);
+  max-width: 760px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 min(5vw, 64px) 16px;
+  overflow-x: auto;
+}
+
+.tab {
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--muted);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.tab.active {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(32, 75, 61, 0.16);
+}
+
+.app-shell {
+  padding: 0 min(5vw, 64px) 56px;
+}
+
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin: 8px 0 18px;
+}
+
+.page-head p { color: var(--muted); margin: 6px 0 0; }
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.kpi-grid {
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+}
+
+.two-col {
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+  margin-top: 16px;
+}
+
+.three-col {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-title h3, .card-title h2 { margin: 0; }
+.card-title small { color: var(--muted); }
+
+.kpi-card {
+  min-height: 120px;
+}
+
+.kpi-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.kpi-value {
+  margin: 12px 0 4px;
+  font-size: 34px;
+  font-weight: 850;
+  color: var(--brand);
+}
+
+.kpi-note { color: var(--muted); font-size: 13px; }
+
+.table-wrap {
+  width: 100%;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  font-size: 12px;
+  color: #39564b;
+  background: #f2f0ea;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+tr:last-child td { border-bottom: 0; }
+
+td.number, th.number { text-align: right; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.level-empty { background: #eef0f3; color: #475467; }
+.level-1 { background: var(--red-soft); color: var(--red); }
+.level-2 { background: var(--yellow-soft); color: var(--yellow); }
+.level-3 { background: var(--green-soft); color: var(--green); }
+.level-4 { background: var(--blue-soft); color: var(--blue); }
+
+.score-pill {
+  display: inline-block;
+  min-width: 54px;
+  text-align: center;
+  border-radius: 999px;
+  padding: 5px 8px;
+  font-weight: 800;
+  background: #eef0f3;
+  color: #475467;
+}
+
+.score-low { background: var(--red-soft); color: var(--red); }
+.score-mid { background: var(--yellow-soft); color: var(--yellow); }
+.score-good { background: var(--green-soft); color: var(--green); }
+.score-high { background: var(--blue-soft); color: var(--blue); }
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.form-row.two {
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+label {
+  display: block;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid #d6d0c3;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--ink);
+}
+
+textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.practice-table select { min-width: 72px; }
+.practice-table textarea { min-width: 180px; min-height: 44px; }
+.practice-table .player-cell { min-width: 190px; font-weight: 800; color: var(--brand); }
+.practice-table .focus-col { background: #fff9ef; }
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+.player-card h3 { margin: 0 0 2px; }
+.player-meta { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.metric-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.metric-mini {
+  border-radius: 12px;
+  background: #f7f5ef;
+  padding: 10px;
+}
+.metric-mini span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; }
+.metric-mini strong { font-size: 20px; color: var(--brand); }
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px) minmax(180px, 240px);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.lineup-card {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr);
+  gap: 16px;
+}
+
+.lineup-selects {
+  display: grid;
+  gap: 10px;
+}
+
+.warning-list {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.warning {
+  border-radius: 12px;
+  padding: 10px;
+  background: var(--yellow-soft);
+  color: var(--yellow);
+  font-weight: 750;
+}
+.warning.ok { background: var(--green-soft); color: var(--green); }
+
+.report-box {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  background: #fffdf8;
+  border: 1px dashed #d0b58a;
+  border-radius: 14px;
+  padding: 18px;
+  min-height: 300px;
+}
+
+.toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  max-width: 360px;
+  z-index: 20;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+.small-text { font-size: 12px; color: var(--muted); }
+
+.inline-edit {
+  display: grid;
+  gap: 6px;
+}
+
+.empty-state {
+  padding: 22px;
+  background: #fffaf0;
+  border: 1px dashed #d6b176;
+  border-radius: 14px;
+  color: #73510d;
+}
+
+@media (max-width: 1050px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col, .three-col, .lineup-card { grid-template-columns: 1fr; }
+  .form-row, .form-row.two, .filters { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .app-header { flex-direction: column; align-items: flex-start; }
+  .header-actions { justify-content: flex-start; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .tabs { padding-left: 16px; padding-right: 16px; }
+  .app-shell, .app-header { padding-left: 16px; padding-right: 16px; }
+  th, td { padding: 9px; }
+}
+
+@media print {
+  body { background: #fff; }
+  .app-header, .tabs, .actions, .header-actions, .filters, .no-print { display: none !important; }
+  .app-shell { padding: 0; }
+  .card { box-shadow: none; border: 0; }
+}
+
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">U10 Boys Rep Basketball</p>
+      <h1>Player Assessment & Feedback App</h1>
+      <p class="subtitle">Track practices, player growth, role fit, parent feedback, and tournament readiness.</p>
+    </div>
+    <div class="header-actions">
+      <button class="ghost" id="exportQuickBtn" type="button">Export Backup</button>
+      <button class="primary" id="navPracticeQuickBtn" type="button">Enter Practice</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Main navigation">
+    <button class="tab active" data-view="dashboard" type="button">Dashboard</button>
+    <button class="tab" data-view="practice" type="button">Practice Entry</button>
+    <button class="tab" data-view="players" type="button">Players</button>
+    <button class="tab" data-view="lineups" type="button">Lineups</button>
+    <button class="tab" data-view="reports" type="button">Parent Reports</button>
+    <button class="tab" data-view="drills" type="button">Drill Library</button>
+    <button class="tab" data-view="data" type="button">Data</button>
+  </nav>
+
+  <main id="app" class="app-shell"></main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+const STORAGE_KEY = "u10-assessment-live-app-v1";
+
+const SKILLS = [
+  { key: "shooting", label: "Shooting" },
+  { key: "finishing", label: "Finishing" },
+  { key: "passing", label: "Passing" },
+  { key: "ballSecurity", label: "Ball Security" },
+  { key: "cuttingSpacing", label: "Cutting / Spacing" },
+  { key: "onBallDefense", label: "On-Ball Defense" },
+  { key: "helpDefense", label: "Help Defense" },
+  { key: "rebounding", label: "Rebounding" },
+  { key: "communication", label: "Communication" },
+  { key: "gameIQ", label: "Game IQ" },
+  { key: "effort", label: "Effort" },
+  { key: "coachability", label: "Coachability" },
+  { key: "pressureResponse", label: "Pressure Response" }
+];
+
+const ESSENTIAL_SKILLS = ["shooting", "finishing", "passing", "ballSecurity", "cuttingSpacing", "onBallDefense", "helpDefense", "rebounding", "communication", "gameIQ", "effort", "coachability"];
+
+const POSITION_WEIGHTS = {
+  "#1": { ballSecurity: 0.25, passing: 0.20, gameIQ: 0.20, communication: 0.15, onBallDefense: 0.10, shooting: 0.10 },
+  "#2": { shooting: 0.20, passing: 0.20, cuttingSpacing: 0.20, ballSecurity: 0.15, finishing: 0.15, onBallDefense: 0.10 },
+  "#3": { cuttingSpacing: 0.20, finishing: 0.20, onBallDefense: 0.20, rebounding: 0.15, effort: 0.15, passing: 0.10 },
+  "#4": { rebounding: 0.25, helpDefense: 0.20, finishing: 0.20, communication: 0.15, passing: 0.10, gameIQ: 0.10 },
+  "#5": { rebounding: 0.25, helpDefense: 0.25, finishing: 0.20, communication: 0.10, effort: 0.10, passing: 0.10 }
+};
+
+const POSITION_LABELS = {
+  "#1": "#1 Point Guard / Ball Handler",
+  "#2": "#2 Shooting Guard / Helper Guard",
+  "#3": "#3 Wing / Runner",
+  "#4": "#4 Forward / Rebounder-Helper",
+  "#5": "#5 Centre / Paint Protector"
+};
+
+const defaultState = {
+  appVersion: 1,
+  team: {
+    name: "U10 Boys Rep Basketball Team",
+    season: "2026",
+    coach: "Coach"
+  },
+  players: [
+    { id: "ryan-yang", name: "Ryan Yang", jersey: 11, primaryShort: "#2", primaryPosition: POSITION_LABELS["#2"], u10Role: "Helper Guard", secondaryPosition: "#1", currentFocus: "Build passing and shot-ready spacing with game-speed reps", coachNotes: "" },
+    { id: "kaiden-nasser", name: "Kaiden Nasser", jersey: 77, primaryShort: "#1", primaryPosition: POSITION_LABELS["#1"], u10Role: "Ball Handler", secondaryPosition: "#2", currentFocus: "Build ball security with simple, game-speed reps", coachNotes: "" },
+    { id: "zayden-chania", name: "Zayden Chania", jersey: 7, primaryShort: "#4", primaryPosition: POSITION_LABELS["#4"], u10Role: "Rebounder / Helper", secondaryPosition: "#5", currentFocus: "Build rebounding and help defense with game-speed reps", coachNotes: "" },
+    { id: "ronan-nghiem", name: "Ronan Nghiem", jersey: 16, primaryShort: "#5", primaryPosition: POSITION_LABELS["#5"], u10Role: "Paint Protector", secondaryPosition: "#4", currentFocus: "Build rebounding and paint protection with game-speed reps", coachNotes: "" },
+    { id: "jordan-sharma", name: "Jordan Sharma", jersey: 28, primaryShort: "#1", primaryPosition: POSITION_LABELS["#1"], u10Role: "Ball Handler", secondaryPosition: "#2", currentFocus: "Build ball security with simple, game-speed reps", coachNotes: "" },
+    { id: "issa-kassam", name: "Issa Kassam", jersey: 6, primaryShort: "#4", primaryPosition: POSITION_LABELS["#4"], u10Role: "Rebounder / Helper", secondaryPosition: "#3 / #5", currentFocus: "Build rebounding and help defense with game-speed reps", coachNotes: "" },
+    { id: "kalyan-umachandran", name: "Kalyan Umachandran", jersey: 8, primaryShort: "#1", primaryPosition: POSITION_LABELS["#1"], u10Role: "Ball Handler", secondaryPosition: "#2 / #3", currentFocus: "Build ball security with simple, game-speed reps", coachNotes: "" },
+    { id: "marcus-sta-cruz", name: "Marcus Sta. Cruz", jersey: 25, primaryShort: "#3", primaryPosition: POSITION_LABELS["#3"], u10Role: "Wing / Runner", secondaryPosition: "#2 / #4", currentFocus: "Build cutting and wing defense with game-speed reps", coachNotes: "" },
+    { id: "arman-maskan", name: "Arman Maskan", jersey: 30, primaryShort: "#3", primaryPosition: POSITION_LABELS["#3"], u10Role: "Wing / Runner", secondaryPosition: "#4", currentFocus: "Build cutting and wing defense with game-speed reps", coachNotes: "" },
+    { id: "kyle-bangia", name: "Kyle Bangia", jersey: 1, primaryShort: "#2", primaryPosition: POSITION_LABELS["#2"], u10Role: "Helper Guard", secondaryPosition: "#1 / #3", currentFocus: "Build passing and shot-ready spacing with game-speed reps", coachNotes: "" },
+    { id: "christian-falletta", name: "Christian Falletta", jersey: 23, primaryShort: "#5", primaryPosition: POSITION_LABELS["#5"], u10Role: "Paint Protector", secondaryPosition: "#4", currentFocus: "Build rebounding and paint protection with game-speed reps", coachNotes: "" },
+    { id: "chrome-laroca", name: "Chrome Laroca", jersey: 5, primaryShort: "#1", primaryPosition: POSITION_LABELS["#1"], u10Role: "Ball Handler", secondaryPosition: "#2", currentFocus: "Build ball security with simple, game-speed reps", coachNotes: "" },
+    { id: "salman-malik", name: "Salman Malik", jersey: 32, primaryShort: "#2", primaryPosition: POSITION_LABELS["#2"], u10Role: "Helper Guard", secondaryPosition: "#3", currentFocus: "Build passing and shot-ready spacing with game-speed reps", coachNotes: "" }
+  ],
+  drills: [
+    { name: "2v2 Shell", category: "Defense", primarySkill: "Help Defense", secondarySkill: "Communication", positionRelevance: "All", difficulty: "Beginner", metric: "Calls Ball/Deny/Help", notes: "Keep it loud and early." },
+    { name: "1v3 Shell Read", category: "Defense", primarySkill: "Help Defense", secondarySkill: "On-Ball Defense", positionRelevance: "All", difficulty: "Intermediate", metric: "Stunts, recovers, communicates", notes: "Reward correct rotations." },
+    { name: "Pass-Cut-Fill", category: "Offense", primarySkill: "Cutting / Spacing", secondarySkill: "Passing", positionRelevance: "#1, #2, #3", difficulty: "Beginner", metric: "Cuts immediately after pass", notes: "No standing after passing." },
+    { name: "V-Cut Layup Lines", category: "Finishing", primarySkill: "Cutting / Spacing", secondarySkill: "Finishing", positionRelevance: "#2, #3, #4", difficulty: "Beginner", metric: "V-cut, catch, finish", notes: "Plant outside foot hard." },
+    { name: "Back-Door Cut Drill", category: "Game IQ", primarySkill: "Cutting / Spacing", secondarySkill: "Finishing", positionRelevance: "#1, #2, #3", difficulty: "Intermediate", metric: "Reads denial and cuts", notes: "Passer reads defender first." },
+    { name: "4v4 Cut or Turnover", category: "Game IQ", primarySkill: "Game IQ", secondarySkill: "Ball Security", positionRelevance: "All", difficulty: "Intermediate", metric: "Cut after every pass", notes: "Simple rule: cut or turnover." },
+    { name: "Closeout + Box Out", category: "Defense", primarySkill: "On-Ball Defense", secondarySkill: "Rebounding", positionRelevance: "All", difficulty: "Beginner", metric: "Chop feet, contest, find-hit-get", notes: "Finish the possession." },
+    { name: "Pressure Pivot Passing", category: "Ball Security", primarySkill: "Ball Security", secondarySkill: "Passing", positionRelevance: "#1, #2", difficulty: "Intermediate", metric: "Strong pivot, safe pass", notes: "Protect ball with body." },
+    { name: "Form Shooting", category: "Shooting", primarySkill: "Shooting", secondarySkill: "Coachability", positionRelevance: "All", difficulty: "Beginner", metric: "Balanced feet and follow-through", notes: "Short reps before speed." },
+    { name: "Transition 3v2", category: "Transition", primarySkill: "Effort", secondarySkill: "Finishing", positionRelevance: "#1, #2, #3", difficulty: "Intermediate", metric: "Sprint lanes, make simple read", notes: "Run wide, pass early." }
+  ],
+  lineups: [
+    { id: "lineup-a", name: "Lineup A", players: ["kaiden-nasser", "kyle-bangia", "marcus-sta-cruz", "zayden-chania", "ronan-nghiem"], notes: "Balanced group: ball handling, wing running, rebounding, paint protection." },
+    { id: "lineup-b", name: "Lineup B", players: ["jordan-sharma", "ryan-yang", "arman-maskan", "issa-kassam", "christian-falletta"], notes: "Second balanced group with clear frontcourt roles." },
+    { id: "press-break", name: "Press Break", players: ["", "", "", "", ""], notes: "Use this for pressure handling and inbound organization." },
+    { id: "defensive-group", name: "Defensive Group", players: ["", "", "", "", ""], notes: "Use this for late-game stops, rebounding, and communication." }
+  ],
+  assessments: []
+};
+
+let state = loadState();
+let currentView = "dashboard";
+let practiceGridCache = new Map();
+
+function loadState() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return clone(defaultState);
+    const parsed = JSON.parse(stored);
+    return mergeState(parsed);
+  } catch (error) {
+    console.warn("Could not load saved state", error);
+    return clone(defaultState);
+  }
+}
+
+function mergeState(saved) {
+  const merged = clone(defaultState);
+  Object.assign(merged.team, saved.team || {});
+  merged.players = Array.isArray(saved.players) && saved.players.length ? saved.players : merged.players;
+  merged.drills = Array.isArray(saved.drills) && saved.drills.length ? saved.drills : merged.drills;
+  merged.lineups = Array.isArray(saved.lineups) && saved.lineups.length ? saved.lineups : merged.lineups;
+  merged.assessments = Array.isArray(saved.assessments) ? saved.assessments : [];
+  return merged;
+}
+
+function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function qs(selector, root = document) {
+  return root.querySelector(selector);
+}
+
+function qsa(selector, root = document) {
+  return Array.from(root.querySelectorAll(selector));
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function playerById(id) {
+  return state.players.find(player => player.id === id);
+}
+
+function skillLabel(key) {
+  return SKILLS.find(skill => skill.key === key)?.label || key;
+}
+
+function skillKeyFromLabel(label) {
+  return SKILLS.find(skill => skill.label === label)?.key || null;
+}
+
+function numeric(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function average(values) {
+  const nums = values.map(numeric).filter(value => value !== null);
+  if (!nums.length) return null;
+  return nums.reduce((sum, value) => sum + value, 0) / nums.length;
+}
+
+function formatScore(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) return "—";
+  return Number(value).toFixed(2);
+}
+
+function scoreClass(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) return "";
+  if (value < 2) return "score-low";
+  if (value < 2.75) return "score-mid";
+  if (value < 3.5) return "score-good";
+  return "score-high";
+}
+
+function scorePill(value) {
+  return `<span class="score-pill ${scoreClass(value)}">${formatScore(value)}</span>`;
+}
+
+function levelFromScore(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return { short: "Needs Ratings", label: "Needs Ratings", className: "level-empty", sort: 0 };
+  }
+  if (value < 2) return { short: "Level 1", label: "Level 1: Learning", className: "level-1", sort: 1 };
+  if (value < 2.75) return { short: "Level 2", label: "Level 2: Game Ready", className: "level-2", sort: 2 };
+  if (value < 3.5) return { short: "Level 3", label: "Level 3: Tournament Ready", className: "level-3", sort: 3 };
+  return { short: "Level 4", label: "Level 4: Advanced", className: "level-4", sort: 4 };
+}
+
+function levelBadge(level) {
+  return `<span class="badge ${level.className}">${level.label}</span>`;
+}
+
+function assessmentsForPlayer(playerId) {
+  return state.assessments.filter(entry => entry.playerId === playerId);
+}
+
+function ratingCount(entry) {
+  return Object.values(entry.ratings || {}).filter(value => numeric(value) !== null).length;
+}
+
+function playerSkillAverage(playerId, skillKey) {
+  const values = assessmentsForPlayer(playerId).map(entry => entry.ratings?.[skillKey]).filter(value => numeric(value) !== null);
+  return average(values);
+}
+
+function playerLatestAssessment(playerId) {
+  const entries = assessmentsForPlayer(playerId).filter(entry => entry.date);
+  if (!entries.length) return null;
+  return [...entries].sort((a, b) => String(b.date).localeCompare(String(a.date)))[0];
+}
+
+function weightedPositionFit(player, skillAverages) {
+  const weights = POSITION_WEIGHTS[player.primaryShort] || {};
+  let weightedTotal = 0;
+  let weightTotal = 0;
+  Object.entries(weights).forEach(([skillKey, weight]) => {
+    const value = skillAverages[skillKey];
+    if (numeric(value) !== null) {
+      weightedTotal += value * weight;
+      weightTotal += weight;
+    }
+  });
+  return weightTotal ? weightedTotal / weightTotal : null;
+}
+
+function playerSummary(playerId) {
+  const player = playerById(playerId);
+  const entries = assessmentsForPlayer(playerId);
+  const skillAverages = {};
+  SKILLS.forEach(skill => {
+    skillAverages[skill.key] = playerSkillAverage(playerId, skill.key);
+  });
+  const overall = average(ESSENTIAL_SKILLS.map(skillKey => skillAverages[skillKey]));
+  const fit = weightedPositionFit(player, skillAverages);
+  const readinessScore = average([overall, fit]);
+  const level = levelFromScore(readinessScore);
+  const ratedSkills = SKILLS.filter(skill => numeric(skillAverages[skill.key]) !== null);
+  const sortedSkills = ratedSkills
+    .map(skill => ({ key: skill.key, label: skill.label, value: skillAverages[skill.key] }))
+    .sort((a, b) => b.value - a.value);
+  const top = sortedSkills[0] || null;
+  const growth = [...sortedSkills].sort((a, b) => a.value - b.value)[0] || null;
+  const latest = playerLatestAssessment(playerId);
+  const ratingsTotal = entries.reduce((total, entry) => total + ratingCount(entry), 0);
+  return {
+    player,
+    entries,
+    latest,
+    skillAverages,
+    overall,
+    fit,
+    readinessScore,
+    level,
+    top,
+    growth,
+    ratingsTotal
+  };
+}
+
+function teamSkillAverages() {
+  return SKILLS.map(skill => {
+    const avg = average(state.players.map(player => playerSummary(player.id).skillAverages[skill.key]));
+    return { key: skill.key, label: skill.label, value: avg };
+  });
+}
+
+function teamSummary() {
+  const playerSummaries = state.players.map(player => playerSummary(player.id));
+  const overall = average(playerSummaries.map(summary => summary.overall));
+  const fit = average(playerSummaries.map(summary => summary.fit));
+  const tournamentReady = playerSummaries.filter(summary => summary.level.sort >= 3).length;
+  const advanced = playerSummaries.filter(summary => summary.level.sort >= 4).length;
+  const belowTwo = playerSummaries.filter(summary => numeric(summary.overall) !== null && summary.overall < 2).length;
+  const latestPractice = state.assessments.filter(entry => entry.date).sort((a, b) => String(b.date).localeCompare(String(a.date)))[0]?.date || null;
+  const skills = teamSkillAverages();
+  const skillsWithRatings = skills.filter(skill => numeric(skill.value) !== null);
+  const strengths = [...skillsWithRatings].sort((a, b) => b.value - a.value).slice(0, 3);
+  const gaps = [...skillsWithRatings].sort((a, b) => a.value - b.value).slice(0, 3);
+  return { playerSummaries, overall, fit, tournamentReady, advanced, belowTwo, latestPractice, skills, strengths, gaps };
+}
+
+function playerOptions(selectedId = "") {
+  return [`<option value="">Select player</option>`]
+    .concat(state.players.map(player => `<option value="${player.id}" ${selectedId === player.id ? "selected" : ""}>${escapeHtml(player.name)} #${player.jersey}</option>`))
+    .join("");
+}
+
+function ratingOptions(value = "") {
+  const current = numeric(value);
+  return `<option value="">—</option>${[1, 2, 3, 4].map(rating => `<option value="${rating}" ${current === rating ? "selected" : ""}>${rating}</option>`).join("")}`;
+}
+
+function skillOptions(selected = "") {
+  return SKILLS.map(skill => `<option value="${skill.key}" ${selected === skill.key ? "selected" : ""}>${skill.label}</option>`).join("");
+}
+
+function drillOptions(selected = "") {
+  return [`<option value="">Select or type custom below</option>`]
+    .concat(state.drills.map(drill => `<option value="${escapeHtml(drill.name)}" ${selected === drill.name ? "selected" : ""}>${escapeHtml(drill.name)}</option>`))
+    .join("");
+}
+
+function render() {
+  qsa(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === currentView));
+  const app = qs("#app");
+  if (currentView === "dashboard") app.innerHTML = renderDashboard();
+  if (currentView === "practice") app.innerHTML = renderPractice();
+  if (currentView === "players") app.innerHTML = renderPlayers();
+  if (currentView === "lineups") app.innerHTML = renderLineups();
+  if (currentView === "reports") app.innerHTML = renderReports();
+  if (currentView === "drills") app.innerHTML = renderDrills();
+  if (currentView === "data") app.innerHTML = renderData();
+  attachViewHandlers();
+}
+
+function renderDashboard() {
+  const summary = teamSummary();
+  const status = summary.tournamentReady >= 8 ? "Tournament-ready core forming" : summary.tournamentReady >= 5 ? "Building competitive depth" : state.assessments.length ? "Needs more Level 3 habits" : "Enter first practice ratings";
+  const focus = summary.gaps[0]?.label || "Enter practice ratings";
+  const positions = ["#1", "#2", "#3", "#4", "#5"].map(pos => {
+    const count = state.players.filter(player => player.primaryShort === pos).length;
+    const avgFit = average(state.players.filter(player => player.primaryShort === pos).map(player => playerSummary(player.id).fit));
+    return { pos, label: POSITION_LABELS[pos], count, avgFit };
+  });
+
+  return `
+    <section class="page-head">
+      <div>
+        <h2>Team Development Dashboard</h2>
+        <p>Live view of team averages, tournament readiness, position balance, and next practice priorities.</p>
+      </div>
+      <button class="primary" data-action="go-practice" type="button">Add Practice Ratings</button>
+    </section>
+
+    <section class="grid kpi-grid">
+      ${kpiCard("Team Players", state.players.length, "Roster loaded")}
+      ${kpiCard("Overall Avg", formatScore(summary.overall), status)}
+      ${kpiCard("Position Fit Avg", formatScore(summary.fit), "Weighted by role")}
+      ${kpiCard("Tournament Ready+", summary.tournamentReady, "Level 3 or higher")}
+      ${kpiCard("Next Focus", escapeHtml(focus), "Lowest team skill average")}
+    </section>
+
+    <section class="grid two-col">
+      <div class="card">
+        <div class="card-title"><h3>Skill Averages</h3><small>1-4 scale</small></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Skill</th><th class="number">Team Avg</th><th>Status</th></tr></thead>
+            <tbody>
+              ${summary.skills.map(skill => `
+                <tr>
+                  <td>${skill.label}</td>
+                  <td class="number">${scorePill(skill.value)}</td>
+                  <td>${levelBadge(levelFromScore(skill.value))}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><h3>Position Balance</h3><small>Role depth</small></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Position</th><th class="number">Players</th><th class="number">Fit Avg</th></tr></thead>
+            <tbody>
+              ${positions.map(position => `
+                <tr>
+                  <td>${escapeHtml(position.label)}</td>
+                  <td class="number">${position.count}</td>
+                  <td class="number">${scorePill(position.avgFit)}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+        <p class="note">Tournament goal: every lineup should have one handler, one helper guard, one runner/wing, and at least two rebound/defense players.</p>
+      </div>
+    </section>
+
+    <section class="grid three-col" style="margin-top:16px;">
+      ${insightCard("Top Strengths", summary.strengths, "No strengths yet. Enter practice ratings.")}
+      ${insightCard("Growth Areas", summary.gaps, "No gaps yet. Enter practice ratings.")}
+      <div class="card">
+        <div class="card-title"><h3>Players Needing Attention</h3><small>Below 2.0 overall</small></div>
+        ${playersNeedingAttention(summary.playerSummaries)}
+      </div>
+    </section>
+  `;
+}
+
+function kpiCard(label, value, note) {
+  return `
+    <div class="card kpi-card">
+      <div class="kpi-label">${label}</div>
+      <div class="kpi-value">${value}</div>
+      <div class="kpi-note">${escapeHtml(note)}</div>
+    </div>
+  `;
+}
+
+function insightCard(title, items, emptyText) {
+  return `
+    <div class="card">
+      <div class="card-title"><h3>${title}</h3><small>Top 3</small></div>
+      ${items.length ? `<div class="table-wrap"><table><tbody>${items.map(item => `<tr><td>${item.label}</td><td class="number">${scorePill(item.value)}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty-state">${emptyText}</div>`}
+    </div>
+  `;
+}
+
+function playersNeedingAttention(summaries) {
+  const players = summaries.filter(summary => numeric(summary.overall) !== null && summary.overall < 2);
+  if (!players.length) {
+    return `<div class="empty-state">No players are currently below 2.0, or ratings have not been entered yet.</div>`;
+  }
+  return `<div class="table-wrap"><table><tbody>${players.map(summary => `<tr><td>${escapeHtml(summary.player.name)}</td><td>${scorePill(summary.overall)}</td><td>${escapeHtml(summary.growth?.label || summary.player.currentFocus)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function renderPractice() {
+  const selectedSkill = localStorage.getItem("practice-selected-skill") || "communication";
+  const compactMode = localStorage.getItem("practice-mode") !== "full";
+  const skillKeys = compactMode ? [selectedSkill] : SKILLS.map(skill => skill.key);
+  return `
+    <section class="page-head">
+      <div>
+        <h2>Practice Entry</h2>
+        <p>Enter quick ratings after practice. Save only the players/skills you rate. All dashboards update instantly.</p>
+      </div>
+      <button class="secondary" data-action="toggle-mode" type="button">${compactMode ? "Use Full Rating Grid" : "Use Quick Focus Mode"}</button>
+    </section>
+
+    <section class="card">
+      <div class="form-row">
+        <div><label for="practiceDate">Date</label><input id="practiceDate" type="date" value="${today()}" /></div>
+        <div><label for="practiceTheme">Practice Theme</label><input id="practiceTheme" type="text" placeholder="Example: Shell defense + pass-cut-fill" /></div>
+        <div><label for="practiceDrill">Drill / Segment</label><select id="practiceDrill">${drillOptions("")}</select></div>
+        <div><label for="practiceSkill">Skill Focus</label><select id="practiceSkill">${skillOptions(selectedSkill)}</select></div>
+      </div>
+      <div class="form-row two">
+        <div><label for="customDrill">Custom Drill Name</label><input id="customDrill" type="text" placeholder="Optional custom drill" /></div>
+        <div><label for="practiceNote">Team Note</label><input id="practiceNote" type="text" placeholder="Optional note for this session" /></div>
+      </div>
+      <p class="note">Quick Focus Mode is best during the season. Full Rating Grid is useful for monthly evaluations.</p>
+    </section>
+
+    <section class="card" style="margin-top:16px;">
+      <div class="card-title"><h3>Player Ratings</h3><small>${compactMode ? "Quick focus" : "Full grid"}</small></div>
+      <div class="table-wrap">
+        <table class="practice-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              ${skillKeys.map(key => `<th class="${key === selectedSkill ? "focus-col" : ""}">${skillLabel(key)}</th>`).join("")}
+              <th>Win of the Day</th>
+              <th>Needs Work</th>
+              <th>Next Goal</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${state.players.map(player => practiceRow(player, skillKeys, selectedSkill)).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="actions">
+        <button class="primary" data-action="save-practice" type="button">Save Practice Entries</button>
+        <button class="ghost" data-action="clear-practice-grid" type="button">Clear Grid</button>
+      </div>
+    </section>
+  `;
+}
+
+function practiceRow(player, skillKeys, selectedSkill) {
+  return `
+    <tr data-player-id="${player.id}">
+      <td class="player-cell">${escapeHtml(player.name)}<br><span class="small-text">#${player.jersey} · ${player.primaryShort} · ${escapeHtml(player.u10Role)}</span></td>
+      ${skillKeys.map(key => `<td class="${key === selectedSkill ? "focus-col" : ""}"><select data-rating-skill="${key}" aria-label="${escapeHtml(player.name)} ${skillLabel(key)} rating">${ratingOptions("")}</select></td>`).join("")}
+      <td><textarea data-note="win" placeholder="Positive habit"></textarea></td>
+      <td><textarea data-note="needs" placeholder="One growth area"></textarea></td>
+      <td><textarea data-note="next" placeholder="Next practice goal"></textarea></td>
+    </tr>
+  `;
+}
+
+function renderPlayers() {
+  const summaries = state.players.map(player => playerSummary(player.id));
+  return `
+    <section class="page-head">
+      <div>
+        <h2>Player Overview</h2>
+        <p>Position-aware view of overall development, role fit, top strengths, and growth focus.</p>
+      </div>
+    </section>
+    <section class="card">
+      <div class="filters">
+        <div><label for="playerSearch">Search</label><input id="playerSearch" type="search" placeholder="Search player name" /></div>
+        <div><label for="positionFilter">Position</label><select id="positionFilter"><option value="">All positions</option>${Object.entries(POSITION_LABELS).map(([key, label]) => `<option value="${key}">${label}</option>`).join("")}</select></div>
+        <div><label for="levelFilter">Level</label><select id="levelFilter"><option value="">All levels</option><option value="0">Needs Ratings</option><option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option></select></div>
+      </div>
+      <div id="playerList" class="player-grid">
+        ${summaries.map(summary => playerCard(summary)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function playerCard(summary) {
+  const { player } = summary;
+  return `
+    <article class="card player-card" data-player-card data-name="${escapeHtml(player.name.toLowerCase())}" data-position="${player.primaryShort}" data-level="${summary.level.sort}">
+      <h3>${escapeHtml(player.name)} <span class="small-text">#${player.jersey}</span></h3>
+      <div class="player-meta">${escapeHtml(player.primaryPosition)} · ${escapeHtml(player.u10Role)} · Secondary: ${escapeHtml(player.secondaryPosition)}</div>
+      ${levelBadge(summary.level)}
+      <div class="metric-list">
+        <div class="metric-mini"><span>Overall</span><strong>${formatScore(summary.overall)}</strong></div>
+        <div class="metric-mini"><span>Position Fit</span><strong>${formatScore(summary.fit)}</strong></div>
+        <div class="metric-mini"><span>Top Skill</span><strong>${escapeHtml(summary.top?.label || "—")}</strong></div>
+        <div class="metric-mini"><span>Growth Area</span><strong>${escapeHtml(summary.growth?.label || "—")}</strong></div>
+      </div>
+      <div class="inline-edit" style="margin-top:12px;">
+        <label>Current Focus</label>
+        <textarea data-action="update-focus" data-player-id="${player.id}">${escapeHtml(player.currentFocus || "")}</textarea>
+      </div>
+      <div class="inline-edit" style="margin-top:10px;">
+        <label>Coach Notes</label>
+        <textarea data-action="update-notes" data-player-id="${player.id}">${escapeHtml(player.coachNotes || "")}</textarea>
+      </div>
+    </article>
+  `;
+}
+
+function renderLineups() {
+  return `
+    <section class="page-head">
+      <div>
+        <h2>Lineup Planner</h2>
+        <p>Build five-player groups and check ball-handling, defense, rebounding, communication, and role balance.</p>
+      </div>
+      <button class="primary" data-action="add-lineup" type="button">Add Lineup</button>
+    </section>
+    <section class="grid">
+      ${state.lineups.map(lineup => lineupCard(lineup)).join("")}
+    </section>
+  `;
+}
+
+function lineupCard(lineup) {
+  const selectedPlayers = lineup.players.map(id => playerById(id)).filter(Boolean);
+  const scores = calculateLineup(lineup.players);
+  return `
+    <article class="card lineup-card" data-lineup-id="${lineup.id}">
+      <div>
+        <label>Lineup Name</label>
+        <input data-action="lineup-name" value="${escapeHtml(lineup.name)}" />
+        <div class="lineup-selects" style="margin-top:12px;">
+          ${[0, 1, 2, 3, 4].map(index => `
+            <div>
+              <label>Player ${index + 1}</label>
+              <select data-action="lineup-player" data-index="${index}">${playerOptions(lineup.players[index] || "")}</select>
+            </div>
+          `).join("")}
+        </div>
+        <label style="margin-top:12px;">Notes</label>
+        <textarea data-action="lineup-notes">${escapeHtml(lineup.notes || "")}</textarea>
+      </div>
+      <div>
+        <div class="card-title"><h3>${escapeHtml(lineup.name)}</h3><small>${selectedPlayers.length}/5 selected</small></div>
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              <tr><td>Avg Overall</td><td class="number">${scorePill(scores.overall)}</td></tr>
+              <tr><td>Avg Position Fit</td><td class="number">${scorePill(scores.fit)}</td></tr>
+              <tr><td>Ball Handling</td><td class="number">${scorePill(scores.ballHandling)}</td></tr>
+              <tr><td>Shooting / Finishing</td><td class="number">${scorePill(scores.shooting)}</td></tr>
+              <tr><td>Defense</td><td class="number">${scorePill(scores.defense)}</td></tr>
+              <tr><td>Rebounding</td><td class="number">${scorePill(scores.rebounding)}</td></tr>
+              <tr><td>Communication</td><td class="number">${scorePill(scores.communication)}</td></tr>
+              <tr><td>Tournament Readiness</td><td class="number">${scorePill(scores.readiness)}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="warning-list">
+          ${scores.warnings.map(warning => `<div class="warning ${warning.ok ? "ok" : ""}">${warning.text}</div>`).join("")}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function calculateLineup(playerIds) {
+  const ids = playerIds.filter(Boolean);
+  const summaries = ids.map(id => playerSummary(id));
+  const players = ids.map(id => playerById(id)).filter(Boolean);
+  const getSkillAvg = skillKey => average(summaries.map(summary => summary.skillAverages[skillKey]));
+  const overall = average(summaries.map(summary => summary.overall));
+  const fit = average(summaries.map(summary => summary.fit));
+  const ballHandling = average([getSkillAvg("ballSecurity"), getSkillAvg("passing"), getSkillAvg("gameIQ")]);
+  const shooting = average([getSkillAvg("shooting"), getSkillAvg("finishing")]);
+  const defense = average([getSkillAvg("onBallDefense"), getSkillAvg("helpDefense")]);
+  const rebounding = getSkillAvg("rebounding");
+  const communication = getSkillAvg("communication");
+  const readiness = average([overall, fit, ballHandling, defense, rebounding, communication]);
+  const hasHandler = players.some(player => player.primaryShort === "#1");
+  const hasSecondary = players.filter(player => ["#1", "#2"].includes(player.primaryShort)).length >= 2;
+  const hasFrontcourt = players.filter(player => ["#4", "#5"].includes(player.primaryShort)).length >= 2 || numeric(rebounding) >= 3;
+  const hasWingRunner = players.some(player => player.primaryShort === "#3") || players.some(player => player.secondaryPosition.includes("#3"));
+  const hasCommunicator = numeric(communication) === null ? false : communication >= 3;
+  const warnings = [
+    { ok: hasHandler, text: hasHandler ? "OK: primary ball-handler included" : "Add one #1 ball-handler" },
+    { ok: hasSecondary, text: hasSecondary ? "OK: secondary handler/help guard included" : "Add a #2 helper guard or second handler" },
+    { ok: hasFrontcourt, text: hasFrontcourt ? "OK: rebound/paint support included" : "Add rebounder/paint defender" },
+    { ok: hasWingRunner, text: hasWingRunner ? "OK: wing/runner spacing included" : "Add wing/runner for spacing and transition" },
+    { ok: hasCommunicator, text: hasCommunicator ? "OK: communication rating supports this group" : numeric(communication) === null ? "Rate communication to confirm leadership" : "Need a stronger communicator in this group" }
+  ];
+  return { overall, fit, ballHandling, shooting, defense, rebounding, communication, readiness, warnings };
+}
+
+function renderReports() {
+  const selected = localStorage.getItem("selected-report-player") || state.players[0]?.id || "";
+  return `
+    <section class="page-head">
+      <div>
+        <h2>Parent Reports</h2>
+        <p>Select a player to generate a positive, specific progress report based on live assessment data.</p>
+      </div>
+    </section>
+    <section class="card">
+      <div class="form-row two">
+        <div><label for="reportPlayer">Player</label><select id="reportPlayer">${playerOptions(selected)}</select></div>
+        <div><label for="reportTone">Tone</label><select id="reportTone"><option value="balanced">Balanced coach note</option><option value="encouraging">Extra encouraging</option><option value="direct">More direct/action-focused</option></select></div>
+      </div>
+      <div id="reportBox" class="report-box">${escapeHtml(buildParentReport(selected, "balanced"))}</div>
+      <div class="actions">
+        <button class="primary" data-action="copy-report" type="button">Copy Report</button>
+        <button class="ghost" data-action="print-report" type="button">Print</button>
+      </div>
+    </section>
+  `;
+}
+
+function buildParentReport(playerId, tone = "balanced") {
+  const summary = playerSummary(playerId);
+  const player = summary.player;
+  if (!player) return "Select a player to generate a report.";
+  const top = summary.top?.label || "effort and learning the team system";
+  const growth = summary.growth?.label || player.currentFocus || "building consistent practice habits";
+  const level = summary.level.label;
+  const latest = summary.latest;
+  const latestText = latest ? `Most recent practice: ${latest.date}${latest.drill ? `, ${latest.drill}` : ""}.` : "No practice ratings have been entered yet.";
+  const atHome = atHomeSuggestion(summary.growth?.key || "ballSecurity");
+  const toneLine = tone === "encouraging"
+    ? "He is showing positive growth and the main goal is to keep building confidence through simple, repeatable habits."
+    : tone === "direct"
+      ? "The next step is to turn this focus area into a reliable game habit through consistent reps."
+      : "The goal is to keep feedback simple, positive, and connected to his role on the team.";
+  return `${player.name} Progress Snapshot\n\nPosition / Role: ${player.primaryPosition} (${player.u10Role})\nSecondary Development: ${player.secondaryPosition}\nCurrent Level: ${level}\nOverall Average: ${formatScore(summary.overall)}\nPosition Fit Score: ${formatScore(summary.fit)}\n\nBiggest Strength: ${top}\nMain Growth Area: ${growth}\nCurrent Focus: ${player.currentFocus || growth}\n\nCoach Note:\n${player.name} is working on becoming more comfortable in his role as a ${player.u10Role}. ${toneLine} ${latestText}\n\nAt-Home Practice Suggestion:\n${atHome}\n\nNext Goal:\nFocus on one clear habit next practice: ${player.currentFocus || growth}.`;
+}
+
+function atHomeSuggestion(skillKey) {
+  const suggestions = {
+    shooting: "5 minutes of close-range form shooting, focusing on balance and follow-through.",
+    finishing: "20 right-hand and 20 left-hand layup footwork reps, slow first and then faster.",
+    passing: "Partner passing: 25 chest passes, 25 bounce passes, and 10 pass fakes before passing.",
+    ballSecurity: "Stationary dribbling and pivot practice: protect the ball, jump stop, pivot, and pass.",
+    cuttingSpacing: "Practice pass-and-cut footwork without a ball: pass, cut hard, and fill open space.",
+    onBallDefense: "Defensive stance mirror drill for 3 sets of 30 seconds, staying low with active feet.",
+    helpDefense: "Watch for ball-you-man positioning during games and practice calling 'help' early.",
+    rebounding: "10 find-hit-get reps: find a body, make contact safely, then go get the ball with two hands.",
+    communication: "Practice loud calls: 'Ball', 'Deny', 'Help' during any backyard or driveway drill.",
+    gameIQ: "Watch 5 minutes of basketball and call out pass, cut, fill, help, and rebound moments.",
+    effort: "Sprint-to-spot habit: short 5-second bursts, stop balanced, then reset.",
+    coachability: "Pick one coach cue per practice and repeat it before every drill.",
+    pressureResponse: "Pivot passing under light pressure: stay calm, chin up, strong pivot, simple pass."
+  };
+  return suggestions[skillKey] || suggestions.ballSecurity;
+}
+
+function renderDrills() {
+  return `
+    <section class="page-head">
+      <div>
+        <h2>Drill Library</h2>
+        <p>Use drills to connect practice plans to the skills and role habits you are tracking.</p>
+      </div>
+    </section>
+    <section class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Drill</th><th>Category</th><th>Primary Skill</th><th>Secondary</th><th>Position Fit</th><th>Difficulty</th><th>Metric</th><th>Notes</th></tr></thead>
+          <tbody>
+            ${state.drills.map(drill => `
+              <tr>
+                <td><strong>${escapeHtml(drill.name)}</strong></td>
+                <td>${escapeHtml(drill.category)}</td>
+                <td>${escapeHtml(drill.primarySkill)}</td>
+                <td>${escapeHtml(drill.secondarySkill)}</td>
+                <td>${escapeHtml(drill.positionRelevance)}</td>
+                <td>${escapeHtml(drill.difficulty)}</td>
+                <td>${escapeHtml(drill.metric)}</td>
+                <td>${escapeHtml(drill.notes)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function renderData() {
+  return `
+    <section class="page-head">
+      <div>
+        <h2>Data & Backup</h2>
+        <p>Data saves in this browser. Export a backup after practices so you can restore or move it later.</p>
+      </div>
+    </section>
+    <section class="grid two-col">
+      <div class="card">
+        <div class="card-title"><h3>Backup / Restore</h3><small>Local storage</small></div>
+        <p class="note">The app works offline. Ratings are saved to this browser only until you export/import a backup file.</p>
+        <div class="actions">
+          <button class="primary" data-action="export-json" type="button">Export Backup JSON</button>
+          <button class="ghost" data-action="import-json-click" type="button">Import Backup JSON</button>
+          <button class="danger" data-action="reset-app" type="button">Reset to Template</button>
+          <input id="importJson" type="file" accept="application/json" style="display:none" />
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><h3>CSV Exports</h3><small>For Excel</small></div>
+        <p class="note">Use CSV exports if you want to analyze or archive the app data in Excel.</p>
+        <div class="actions">
+          <button class="secondary" data-action="export-player-csv" type="button">Player Summary CSV</button>
+          <button class="secondary" data-action="export-practice-csv" type="button">Practice Entries CSV</button>
+        </div>
+      </div>
+    </section>
+    <section class="card" style="margin-top:16px;">
+      <div class="card-title"><h3>App Status</h3><small>Current browser data</small></div>
+      <div class="table-wrap">
+        <table>
+          <tbody>
+            <tr><td>Players</td><td>${state.players.length}</td></tr>
+            <tr><td>Practice Entry Rows</td><td>${state.assessments.length}</td></tr>
+            <tr><td>Lineups</td><td>${state.lineups.length}</td></tr>
+            <tr><td>Drills</td><td>${state.drills.length}</td></tr>
+            <tr><td>Last Practice Date</td><td>${teamSummary().latestPractice || "—"}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function attachViewHandlers() {
+  qsa("[data-action='go-practice']").forEach(btn => btn.addEventListener("click", () => setView("practice")));
+  const practiceSkill = qs("#practiceSkill");
+  if (practiceSkill) {
+    practiceSkill.addEventListener("change", event => {
+      localStorage.setItem("practice-selected-skill", event.target.value);
+      render();
+    });
+  }
+  qsa("[data-action='toggle-mode']").forEach(btn => btn.addEventListener("click", () => {
+    const current = localStorage.getItem("practice-mode") || "quick";
+    localStorage.setItem("practice-mode", current === "full" ? "quick" : "full");
+    render();
+  }));
+  qsa("[data-action='save-practice']").forEach(btn => btn.addEventListener("click", savePracticeEntries));
+  qsa("[data-action='clear-practice-grid']").forEach(btn => btn.addEventListener("click", () => render()));
+
+  const playerSearch = qs("#playerSearch");
+  const positionFilter = qs("#positionFilter");
+  const levelFilter = qs("#levelFilter");
+  [playerSearch, positionFilter, levelFilter].filter(Boolean).forEach(input => input.addEventListener("input", applyPlayerFilters));
+  qsa("[data-action='update-focus']").forEach(input => input.addEventListener("change", updatePlayerField));
+  qsa("[data-action='update-notes']").forEach(input => input.addEventListener("change", updatePlayerField));
+
+  qsa("[data-action='add-lineup']").forEach(btn => btn.addEventListener("click", addLineup));
+  qsa("[data-action='lineup-name']").forEach(input => input.addEventListener("change", updateLineup));
+  qsa("[data-action='lineup-player']").forEach(select => select.addEventListener("change", updateLineup));
+  qsa("[data-action='lineup-notes']").forEach(input => input.addEventListener("change", updateLineup));
+
+  const reportPlayer = qs("#reportPlayer");
+  const reportTone = qs("#reportTone");
+  if (reportPlayer) reportPlayer.addEventListener("change", updateReport);
+  if (reportTone) reportTone.addEventListener("change", updateReport);
+  qsa("[data-action='copy-report']").forEach(btn => btn.addEventListener("click", copyReport));
+  qsa("[data-action='print-report']").forEach(btn => btn.addEventListener("click", () => window.print()));
+
+  qsa("[data-action='export-json']").forEach(btn => btn.addEventListener("click", exportJson));
+  qsa("[data-action='import-json-click']").forEach(btn => btn.addEventListener("click", () => qs("#importJson")?.click()));
+  const importJson = qs("#importJson");
+  if (importJson) importJson.addEventListener("change", importJsonFile);
+  qsa("[data-action='reset-app']").forEach(btn => btn.addEventListener("click", resetApp));
+  qsa("[data-action='export-player-csv']").forEach(btn => btn.addEventListener("click", exportPlayerCsv));
+  qsa("[data-action='export-practice-csv']").forEach(btn => btn.addEventListener("click", exportPracticeCsv));
+}
+
+function setView(view) {
+  currentView = view;
+  render();
+}
+
+function savePracticeEntries() {
+  const date = qs("#practiceDate")?.value || today();
+  const theme = qs("#practiceTheme")?.value.trim() || "";
+  const drillSelect = qs("#practiceDrill")?.value || "";
+  const customDrill = qs("#customDrill")?.value.trim() || "";
+  const drill = customDrill || drillSelect;
+  const skillFocus = qs("#practiceSkill")?.value || "";
+  const teamNote = qs("#practiceNote")?.value.trim() || "";
+  let saved = 0;
+  qsa(".practice-table tbody tr").forEach(row => {
+    const playerId = row.dataset.playerId;
+    const ratings = {};
+    qsa("select[data-rating-skill]", row).forEach(select => {
+      const value = numeric(select.value);
+      if (value !== null) ratings[select.dataset.ratingSkill] = value;
+    });
+    const win = qs("[data-note='win']", row)?.value.trim() || "";
+    const needsWork = qs("[data-note='needs']", row)?.value.trim() || "";
+    const nextGoal = qs("[data-note='next']", row)?.value.trim() || "";
+    const hasContent = Object.keys(ratings).length || win || needsWork || nextGoal;
+    if (!hasContent) return;
+    state.assessments.push({
+      id: cryptoRandomId(),
+      date,
+      theme,
+      drill,
+      skillFocus,
+      teamNote,
+      playerId,
+      ratings,
+      win,
+      needsWork,
+      nextGoal,
+      createdAt: new Date().toISOString()
+    });
+    saved += 1;
+  });
+  saveState();
+  showToast(saved ? `Saved ${saved} player practice entries.` : "Nothing saved. Add at least one rating or note.");
+  render();
+}
+
+function cryptoRandomId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function applyPlayerFilters() {
+  const search = (qs("#playerSearch")?.value || "").toLowerCase();
+  const position = qs("#positionFilter")?.value || "";
+  const level = qs("#levelFilter")?.value || "";
+  qsa("[data-player-card]").forEach(card => {
+    const matchSearch = !search || card.dataset.name.includes(search);
+    const matchPosition = !position || card.dataset.position === position;
+    const matchLevel = !level || card.dataset.level === level;
+    card.style.display = matchSearch && matchPosition && matchLevel ? "block" : "none";
+  });
+}
+
+function updatePlayerField(event) {
+  const player = playerById(event.target.dataset.playerId);
+  if (!player) return;
+  if (event.target.dataset.action === "update-focus") player.currentFocus = event.target.value;
+  if (event.target.dataset.action === "update-notes") player.coachNotes = event.target.value;
+  saveState();
+  showToast("Player note updated.");
+}
+
+function addLineup() {
+  state.lineups.push({ id: cryptoRandomId(), name: `Lineup ${state.lineups.length + 1}`, players: ["", "", "", "", ""], notes: "" });
+  saveState();
+  render();
+}
+
+function updateLineup(event) {
+  const card = event.target.closest("[data-lineup-id]");
+  const lineup = state.lineups.find(item => item.id === card.dataset.lineupId);
+  if (!lineup) return;
+  if (event.target.dataset.action === "lineup-name") lineup.name = event.target.value;
+  if (event.target.dataset.action === "lineup-notes") lineup.notes = event.target.value;
+  if (event.target.dataset.action === "lineup-player") lineup.players[Number(event.target.dataset.index)] = event.target.value;
+  saveState();
+  render();
+}
+
+function updateReport() {
+  const playerId = qs("#reportPlayer")?.value || "";
+  const tone = qs("#reportTone")?.value || "balanced";
+  localStorage.setItem("selected-report-player", playerId);
+  const reportBox = qs("#reportBox");
+  if (reportBox) reportBox.textContent = buildParentReport(playerId, tone);
+}
+
+async function copyReport() {
+  const text = qs("#reportBox")?.textContent || "";
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("Parent report copied.");
+  } catch (error) {
+    showToast("Copy failed. Select the report text and copy manually.");
+  }
+}
+
+function exportJson() {
+  downloadFile(`u10-assessment-backup-${today()}.json`, JSON.stringify(state, null, 2), "application/json");
+}
+
+function importJsonFile(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      state = mergeState(parsed);
+      saveState();
+      showToast("Backup imported successfully.");
+      render();
+    } catch (error) {
+      showToast("Import failed. Please select a valid backup JSON file.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetApp() {
+  const ok = window.confirm("Reset the app to the original template? This clears saved ratings in this browser. Export a backup first if needed.");
+  if (!ok) return;
+  state = clone(defaultState);
+  saveState();
+  showToast("App reset to template.");
+  render();
+}
+
+function exportPlayerCsv() {
+  const headers = ["Player", "Jersey", "Primary Position", "Role", "Secondary Position", "Overall", "Position Fit", "Level", "Top Strength", "Growth Area", "Current Focus"];
+  const rows = state.players.map(player => {
+    const summary = playerSummary(player.id);
+    return [
+      player.name,
+      player.jersey,
+      player.primaryPosition,
+      player.u10Role,
+      player.secondaryPosition,
+      formatScore(summary.overall),
+      formatScore(summary.fit),
+      summary.level.label,
+      summary.top?.label || "",
+      summary.growth?.label || "",
+      player.currentFocus || ""
+    ];
+  });
+  downloadCsv(`u10-player-summary-${today()}.csv`, headers, rows);
+}
+
+function exportPracticeCsv() {
+  const headers = ["Date", "Theme", "Drill", "Skill Focus", "Player", ...SKILLS.map(skill => skill.label), "Win", "Needs Work", "Next Goal", "Team Note"];
+  const rows = state.assessments.map(entry => {
+    const player = playerById(entry.playerId);
+    return [
+      entry.date,
+      entry.theme,
+      entry.drill,
+      skillLabel(entry.skillFocus),
+      player?.name || entry.playerId,
+      ...SKILLS.map(skill => entry.ratings?.[skill.key] ?? ""),
+      entry.win || "",
+      entry.needsWork || "",
+      entry.nextGoal || "",
+      entry.teamNote || ""
+    ];
+  });
+  downloadCsv(`u10-practice-entries-${today()}.csv`, headers, rows);
+}
+
+function downloadCsv(filename, headers, rows) {
+  const allRows = [headers, ...rows];
+  const csv = allRows.map(row => row.map(csvEscape).join(",")).join("\n");
+  downloadFile(filename, csv, "text/csv");
+}
+
+function csvEscape(value) {
+  const text = String(value ?? "");
+  if (/[",\n]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
+  return text;
+}
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function showToast(message) {
+  const toast = qs("#toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  window.setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+qsa(".tab").forEach(tab => tab.addEventListener("click", () => setView(tab.dataset.view)));
+qs("#navPracticeQuickBtn")?.addEventListener("click", () => setView("practice"));
+qs("#exportQuickBtn")?.addEventListener("click", exportJson);
+
+render();
+
+  </script>
+</body>
+</html>
